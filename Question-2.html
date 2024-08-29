@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Buttons</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ffe4e1;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .question, .new-question {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #ff1493;
+            position: relative;
+            z-index: 2;
+            font-weight: bold;
+        }
+
+        .buttons, .new-buttons {
+            position: relative;
+            z-index: 2;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border: none;
+            background-color: #ff69b4;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #ff1493;
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .text-note {
+            display: none;
+            font-size: 1.5em;
+            color: #ff0000;
+            margin-top: 10px;
+            font-weight: bold;
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #surpriseMessage {
+            display: none;
+            font-size: 2em;
+            color: #ff1493;
+            margin-top: 20px;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+        }
+
+        .kiss-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+            display: none; /* Hide initially */
+        }
+
+        .kiss-rain span {
+            position: absolute;
+            font-size: 5em; /* Larger emoji */
+            color: #ff1493;
+            opacity: 0.8;
+            animation: kiss-fall 10s linear infinite; /* Adjust for smoother effect */
+        }
+
+        @keyframes kiss-fall {
+            0% { transform: translateY(-100px); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="question" id="initialQuestion">Do you love me?</div>
+        <div class="buttons" id="initialButtons">
+            <button id="button1" onclick="handleButtonClick(this)">No</button>
+            <button id="button2" onclick="handleButtonClick(this)">No</button>
+        </div>
+        <div id="surpriseMessage">I love you more my love!!! 💋💖🥰</div>
+        <div class="new-question hidden" id="newQuestion">Ay, Hindi mo nako love:&lt;&lt;</div>
+        <div class="new-buttons hidden" id="newButtons">
+            <button id="buttonYes" onclick="handleNewButtonClick(this)">Hindi kaya, love na love kita sobra baby kita ih</button>
+            <button id="buttonNo" onclick="handleNewButtonClick(this)">Oo, Hindi na kita love</button>
+            <div class="text-note hidden" id="textNote">Bawal yan dapat love moko dapat ako lng baby mo!!!:&lt;&lt;&lt;</div>
+        </div>
+        <div class="kiss-rain hidden" id="kissRain"></div>
+    </div>
+
+    <script>
+        let clickCount1 = 0;
+        let clickCount2 = 0;
+        let yesButtonDisplayed = false;
+
+        function handleButtonClick(button) {
+            if (button.id === "button1") {
+                clickCount1++;
+            } else {
+                clickCount2++;
+            }
+
+            button.classList.add("shake");
+            setTimeout(() => button.classList.remove("shake"), 500); // Remove shake after animation
+            vibrateDevice();
+
+            if (clickCount1 >= 6 || clickCount2 >= 6) {
+                if (!yesButtonDisplayed) {
+                    transformNoToYes();
+                    yesButtonDisplayed = true;
+                }
+            }
+        }
+
+        function transformNoToYes() {
+            const buttons = document.querySelectorAll('.buttons button');
+            const lastClicked = clickCount1 >= 6 ? document.getElementById("button1") : document.getElementById("button2");
+
+            buttons.forEach(button => {
+                if (button !== lastClicked) {
+                    button.style.display = 'none';
+                }
+            });
+
+            lastClicked.textContent = 'Yes';
+            lastClicked.onclick = function() {
+                showNewQuestion();
+            };
+        }
+
+        function showNewQuestion() {
+            document.getElementById("initialQuestion").classList.add("hidden");
+            document.getElementById("initialButtons").classList.add("hidden");
+            document.getElementById("newQuestion").classList.remove("hidden");
+            document.getElementById("newButtons").classList.remove("hidden");
+        }
+
+        function handleNewButtonClick(button) {
+            if (button.id === "buttonYes") {
+                showSurpriseMessage();
+            } else if (button.id === "buttonNo") {
+                showTextNote();
+            }
+        }
+
+        function showSurpriseMessage() {
+            document.getElementById("newQuestion").classList.add("hidden");
+            document.getElementById("newButtons").classList.add("hidden");
+            document.getElementById("surpriseMessage").style.display = "block";
+            startKissRain();
+        }
+
+        function showTextNote() {
+            const buttonNo = document.getElementById("buttonNo");
+            buttonNo.classList.add("shake");
+            setTimeout(() => buttonNo.classList.remove("shake"), 500);
+            vibrateDevice();
+            document.getElementById("textNote").classList.remove("hidden");
+        }
+
+        function vibrateDevice() {
+            if (navigator.vibrate) {
+                navigator.vibrate(500); // Vibrate for 500ms
+            }
+        }
+
+        function startKissRain() {
+            const kissRain = document.getElementById("kissRain");
+            kissRain.innerHTML = ""; // Clear existing kisses
+            kissRain.style.display = "block"; // Show rain effect
+
+            // Create a cloud of kiss emojis
+            for (let i = 0; i < 150; i++) { // Adjust number for desired effect
+                const kiss = document.createElement("span");
+                kiss.textContent = "💋";
+                kiss.style.left = `${Math.random() * 100}vw`;
+                kiss.style.top = `${Math.random() * 100}vh`;
+                kiss.style.opacity = 0.8;
+                kiss.style.position = "absolute";
+                kiss.style.fontSize = "5em"; // Larger emoji
+                kissRain.appendChild(kiss);
+            }
+        }
+    </script>
+
+</body></html>
